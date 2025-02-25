@@ -1,0 +1,14 @@
+[project]
+authors = ["Brian Grenier <grenierb96@gmail.com>"]
+channels = ["https://conda.modular.com/max-nightly", "https://conda.modular.com/max", "https://repo.prefix.dev/modular-community", "conda-forge"]
+description = "Add a short description here"
+name = "conways"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+play = { cmd = "mojo package kernels/ -o kernels.mojopkg && python conways.py", env={ MODULAR_ONLY_USE_NEW_EXTENSIBILITY_API="true" } }
+
+[dependencies]
+max = ">=25.2.0.dev2025022405,<26"
+pygame = ">=2.6.1,<3"
