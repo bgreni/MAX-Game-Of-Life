@@ -59,7 +59,7 @@ struct Conway[wrap: Bool]:
             var curr = x[idx] & 1
     
             return ((ON * Scalar[x.type](total == 2 or total == 3)) * curr) 
-                | ((ON * Scalar[x.type](total == 3)) * (~curr) & 1)
+                | ((ON * Scalar[x.type](total == 3)) * ((~curr) & 1))
 
         foreach[conway_elementwise, target=target, simd_width=1](out, ctx)
 
