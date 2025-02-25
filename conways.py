@@ -62,6 +62,9 @@ if __name__ == '__main__':
 
     PADDING = 10
 
+    from pprint import pprint
+    pprint(data)
+
     for i in range(len(data)):
         data[i] = ('.' * PADDING) + data[i] + ('.' * PADDING)
 
@@ -72,11 +75,11 @@ if __name__ == '__main__':
     HEIGHT = len(data)
     WIDTH = len(data[0])
 
-    xv = np.zeros((HEIGHT, WIDTH), dtype=np.uint8)
+    xv = np.zeros((WIDTH, HEIGHT), dtype=np.uint8)
     for y in range(HEIGHT):
         for x in range(WIDTH):
             if data[y][x] != '.':
-                xv[y, x] = 255
+                xv[x, y] = 255
 
     graph = Graph(
         "life",
@@ -86,7 +89,7 @@ if __name__ == '__main__':
             out_types=[TensorType(dtype=x.dtype, shape=x.tensor.shape)],
             parameters={"wrap": args.wrap},
         )[0].tensor,
-        input_types=[TensorType(output_type, shape=[HEIGHT, WIDTH])]
+        input_types=[TensorType(output_type, shape=[WIDTH, HEIGHT])]
     )
     device = CPU() if accelerator_count() == 0 else Accelerator()
     session = InferenceSession(
@@ -101,6 +104,6 @@ if __name__ == '__main__':
         arr = res.to(CPU()).to_numpy()
         return arr
 
-    game = GOL(xv, update, (HEIGHT, WIDTH))
+    game = GOL(xv, update, (WIDTH, HEIGHT))
 
     game.start()
