@@ -7,7 +7,7 @@ from max.engine import InferenceSession
 from max.graph import Graph, TensorType, ops
 import numpy as np
 import pygame
-from sys import argv
+from argparse import *
 
 
 output_type = DType.uint8
@@ -43,15 +43,31 @@ if __name__ == '__main__':
         os.chdir(directory)
     path = Path(__file__).parent / "kernels.mojopkg"
 
-    filename: str
-    if len(argv) == 2:
-        filename = argv[1]
-    else:
-        filename = './starting_points/gun.txt'
+
+    parser = ArgumentParser(
+        prog="ConwayGameOfLife",
+        description="Conways Game of Life implemented with MAX"
+    )
+
+    parser.add_argument('-f', '--filename', default='./starting_points/gun.txt')
+    parser.add_argument('-w', '--wrap', action='store_true')
+
+    args = parser.parse_args()
+
+    wrap = True
 
     data: str
-    with open(filename) as f:
+    with open(args.filename) as f:
         data = f.read().splitlines()
+
+    PADDING = 10
+
+    for i in range(len(data)):
+        data[i] = ('.' * PADDING) + data[i] + ('.' * PADDING)
+
+    pad = ["." * len(data[0]) for _ in range(PADDING)]
+
+    data = pad + data + pad
 
     HEIGHT = len(data)
     WIDTH = len(data[0])
@@ -68,6 +84,7 @@ if __name__ == '__main__':
             name="conway",
             values=[x],
             out_types=[TensorType(dtype=x.dtype, shape=x.tensor.shape)],
+            parameters={"wrap": args.wrap},
         )[0].tensor,
         input_types=[TensorType(output_type, shape=[HEIGHT, WIDTH])]
     )

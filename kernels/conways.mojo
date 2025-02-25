@@ -8,7 +8,7 @@ alias ON = 255
 alias OFF = 0
 
 @compiler.register('conway', num_dps_outputs=1)
-struct Conway:
+struct Conway[wrap: Bool]:
     @staticmethod
     fn execute[target: StringLiteral](
         out: ManagedTensorSlice,
@@ -22,10 +22,22 @@ struct Conway:
             @always_inline
             @parameter
             fn check_pos(xl: Int, yl: Int) -> Int:
-                if xl < 0 or yl < 0 or xl >= shape[0] or yl >= shape[1]:
-                    return 0
+                @parameter
+                if not wrap:
+                    if xl < 0 or yl < 0 or xl >= shape[0] or yl >= shape[1]:
+                        return 0
 
-                return 1 if x[IndexList[x.rank](xl, yl)] == 255 else 0
+                var x_ind: Int
+                var y_ind: Int
+
+                @parameter
+                if wrap:
+                    x_ind = xl % shape[0]
+                    y_ind = yl % shape[1]
+                else:
+                    x_ind = xl
+                    y_ind = yl
+                return 1 if x[IndexList[x.rank](x_ind, y_ind)] == 255 else 0
 
             var row = idx[0]
             var col = idx[1]
@@ -41,10 +53,7 @@ struct Conway:
             total += check_pos(row + 1, col)
             total += check_pos(row + 1, col + 1)
 
-
-            var curr = x[idx]
-
-            if curr:
+            if x[idx]:
                 if total == 2 or total == 3:
                     return ON
             else:
