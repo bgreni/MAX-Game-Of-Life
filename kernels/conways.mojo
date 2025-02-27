@@ -32,9 +32,6 @@ struct Conway[wrap: Bool]:
                     if xl < 0 or yl < 0 or xl >= shape[0] or yl >= shape[1]:
                         return OFF
 
-                var x_ind: Int
-                var y_ind: Int
-
                 @parameter
                 if wrap:
                     xl %= shape[0]
@@ -56,10 +53,10 @@ struct Conway[wrap: Bool]:
             total += check_pos(row + 1, col)
             total += check_pos(row + 1, col + 1)
 
-            var curr = x[idx] & 1
+            var curr_is_on = x[idx] & 1
     
-            return ((ON * Scalar[x.type](total == 2 or total == 3)) * curr) 
-                | ((ON * Scalar[x.type](total == 3)) * ((~curr) & 1))
+            return ((ON * Scalar[x.type](total == 2 or total == 3)) * curr_is_on) 
+                | ((ON * Scalar[x.type](total == 3)) * ((~curr_is_on) & 1))
 
         foreach[conway_elementwise, target=target, simd_width=1](out, ctx)
 

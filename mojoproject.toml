@@ -1,6 +1,6 @@
 [project]
 authors = ["Brian Grenier <grenierb96@gmail.com>"]
-channels = ["https://conda.modular.com/max-nightly", "https://conda.modular.com/max", "https://repo.prefix.dev/modular-community", "conda-forge"]
+channels = ["https://conda.modular.com/max-nightly", "https://repo.prefix.dev/modular-community", "conda-forge"]
 description = "Add a short description here"
 name = "conways"
 platforms = ["osx-arm64"]
