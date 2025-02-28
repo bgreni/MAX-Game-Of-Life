@@ -138,12 +138,13 @@ if __name__ == '__main__':
 
     PADDING = int(args.padding)
 
-    for i in range(len(data)):
-        data[i] = ('.' * PADDING) + data[i] + ('.' * PADDING)
+    if PADDING > 0:
+        for i in range(len(data)):
+            data[i] = ('.' * PADDING) + data[i] + ('.' * PADDING)
 
-    pad = ["." * len(data[0]) for _ in range(PADDING)]
+        pad = ["." * len(data[0]) for _ in range(PADDING)]
 
-    data = pad + data + pad
+        data = pad + data + pad
 
     HEIGHT = len(data)
     WIDTH = len(data[0])

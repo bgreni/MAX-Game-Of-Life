@@ -55,8 +55,7 @@ struct Conway[wrap: Bool]:
 
             var curr_is_on = x[idx] & 1
     
-            return ((ON * Scalar[x.type](total == 2 or total == 3)) * curr_is_on) 
-                | ((ON * Scalar[x.type](total == 3)) * ((~curr_is_on) & 1))
+            return ((ON * Scalar[x.type]((Scalar[x.type](total == 2) * curr_is_on) | Scalar[x.type](total == 3))))
 
         foreach[conway_elementwise, target=target, simd_width=1](out, ctx)
 
