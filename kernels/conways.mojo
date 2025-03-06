@@ -1,5 +1,5 @@
 import compiler
-from max.tensor import ManagedTensorSlice, foreach
+from max.tensor import OutputTensor, InputTensor, foreach, ManagedTensorSlice
 from runtime.asyncrt import DeviceContextPtr
 
 from utils.index import IndexList
@@ -11,10 +11,10 @@ alias OFF = 0
 struct Conway[wrap: Bool]:
     @staticmethod
     fn execute[target: StringLiteral](
-        out: ManagedTensorSlice,
-        x: ManagedTensorSlice[type=out.type, rank=out.rank],
+        out: OutputTensor,
+        x: InputTensor[type=out.type, rank=out.rank],
         ctx: DeviceContextPtr
-    ):
+    ) raises:
         var shape = x.shape()
 
         # shape gets corrupted for large tensors if I don't copy it in here?
@@ -55,7 +55,10 @@ struct Conway[wrap: Bool]:
 
             var curr_is_on = x[idx] & 1
     
-            return ((ON * Scalar[x.type]((Scalar[x.type](total == 2) * curr_is_on) | Scalar[x.type](total == 3))))
+            return ((ON * Scalar[x.type](
+                (Scalar[x.type](total == 2) * curr_is_on)
+                    | Scalar[x.type](total == 3))
+            ))
 
         foreach[conway_elementwise, target=target, simd_width=1](out, ctx)
 
