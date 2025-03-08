@@ -7,7 +7,7 @@ from utils.index import IndexList
 alias ON = 255
 alias OFF = 0
 
-@compiler.register('conway', num_dps_outputs=1)
+@compiler.register('conway')
 struct Conway[wrap: Bool]:
     @staticmethod
     fn execute[target: StringLiteral](
@@ -17,6 +17,8 @@ struct Conway[wrap: Bool]:
     ) raises:
         var shape = x.shape()
 
+        alias CellType = Scalar[x.type]
+
         # shape gets corrupted for large tensors if I don't copy it in here?
         @__copy_capture(shape)
         @parameter
@@ -25,7 +27,7 @@ struct Conway[wrap: Bool]:
 
             @always_inline
             @parameter
-            fn check_pos(owned xl: Int, owned yl: Int) -> Scalar[x.type]:
+            fn check_pos(owned xl: Int, owned yl: Int) -> CellType:
                 
                 @parameter
                 if not wrap:
@@ -42,7 +44,7 @@ struct Conway[wrap: Bool]:
             var row = idx[0]
             var col = idx[1]
 
-            var total: Scalar[x.type] = 0
+            var total: CellType = 0
 
             total += check_pos(row - 1, col - 1)
             total += check_pos(row - 1, col)
@@ -55,9 +57,8 @@ struct Conway[wrap: Bool]:
 
             var curr_is_on = x[idx] & 1
     
-            return ((ON * Scalar[x.type](
-                (Scalar[x.type](total == 2) * curr_is_on)
-                    | Scalar[x.type](total == 3))
+            return ((ON * CellType(
+                (CellType(total == 2) * curr_is_on) | CellType(total == 3))
             ))
 
         foreach[conway_elementwise, target=target, simd_width=1](out, ctx)
