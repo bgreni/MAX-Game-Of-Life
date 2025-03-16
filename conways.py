@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from max.driver import CPU, Accelerator, Tensor, accelerator_count
+from max.driver import CPU, Accelerator, Tensor, accelerator_count, Device
 from max.dtype import DType
 from max.engine import InferenceSession
 from max.graph import Graph, TensorType, ops
@@ -165,7 +165,14 @@ if __name__ == '__main__':
         )[0].tensor,
         input_types=[TensorType(output_type, shape=[WIDTH, HEIGHT])]
     )
-    device = CPU() if accelerator_count() == 0 else Accelerator()
+    
+    device: Device
+    
+    try:
+        device = CPU() if accelerator_count() == 0 else Accelerator()
+    except:
+        device = CPU()
+
     session = InferenceSession(
         devices=[device],
         custom_extensions=path,

@@ -19,7 +19,6 @@ struct Conway[wrap: Bool]:
 
         alias CellType = Scalar[x.type]
 
-        # shape gets corrupted for large tensors if I don't copy it in here?
         @__copy_capture(shape)
         @parameter
         @always_inline
@@ -27,19 +26,19 @@ struct Conway[wrap: Bool]:
 
             @always_inline
             @parameter
-            fn check_pos(owned xl: Int, owned yl: Int) -> CellType:
+            fn check_pos(owned yl: Int, owned xl: Int) -> CellType:
                 
                 @parameter
                 if not wrap:
-                    if xl < 0 or yl < 0 or xl >= shape[0] or yl >= shape[1]:
+                    if xl < 0 or yl < 0 or yl >= shape[0] or xl >= shape[1]:
                         return OFF
 
                 @parameter
                 if wrap:
-                    xl %= shape[0]
-                    yl %= shape[1]
+                    yl %= shape[0]
+                    xl %= shape[1]
                     
-                return x[IndexList[x.rank](xl, yl)] & 1
+                return x[IndexList[x.rank](yl, xl)] & 1
 
             var row = idx[0]
             var col = idx[1]
@@ -65,6 +64,6 @@ struct Conway[wrap: Bool]:
 
     @staticmethod
     fn shape(
-        x: ManagedTensorSlice,
+        x: InputTensor
     ) raises -> IndexList[x.rank]:
         raise "NotImplemented"
