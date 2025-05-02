@@ -4,7 +4,7 @@ from pathlib import Path
 from max.driver import CPU, Accelerator, Tensor, accelerator_count, Device
 from max.dtype import DType
 from max.engine import InferenceSession
-from max.graph import Graph, TensorType, ops
+from max.graph import Graph, TensorType, ops, DeviceRef
 import numpy as np
 import pygame
 from argparse import *
@@ -104,7 +104,6 @@ class GOL:
 if __name__ == '__main__':
     if directory := os.getenv("BUILD_WORKSPACE_DIRECTORY"):
         os.chdir(directory)
-    path = Path(__file__).parent / "kernels.mojopkg"
 
 
     parser = ArgumentParser(
@@ -155,17 +154,6 @@ if __name__ == '__main__':
             if data[y][x] != '.':
                 xv[x, y] = 255
 
-    graph = Graph(
-        "life",
-        forward=lambda x: ops.custom(
-            name="conway",
-            values=[x],
-            out_types=[TensorType(dtype=x.dtype, shape=x.tensor.shape)],
-            parameters={"wrap": args.wrap},
-        )[0].tensor,
-        input_types=[TensorType(output_type, shape=[WIDTH, HEIGHT])]
-    )
-    
     device: Device
     
     try:
@@ -173,9 +161,21 @@ if __name__ == '__main__':
     except:
         device = CPU()
 
+    graph = Graph(
+        "life",
+        forward=lambda x: ops.custom(
+            name="conway",
+            values=[x],
+            out_types=[TensorType(dtype=x.dtype, shape=x.tensor.shape, device=DeviceRef.from_device(device))],
+            parameters={"wrap": args.wrap},
+        )[0].tensor,
+        input_types=[TensorType(output_type, shape=[WIDTH, HEIGHT], device=DeviceRef.from_device(device))],
+        custom_extensions=[Path(__file__).parent / "kernels"],
+    )
+    
+
     session = InferenceSession(
-        devices=[device],
-        custom_extensions=path,
+        devices=[device]
     )
     model = session.load(graph)
 

@@ -10,7 +10,7 @@ alias OFF = 0
 @compiler.register('conway')
 struct Conway[wrap: Bool]:
     @staticmethod
-    fn execute[target: StringLiteral](
+    fn execute[target: StaticString](
         out: OutputTensor,
         x: InputTensor[type=out.type, rank=out.rank],
         ctx: DeviceContextPtr
